@@ -13,13 +13,32 @@ LIMIT 10; -- limit to show only the first 10 data points
 --"Is our revenue growing, shrinking, or seasonal over time?
 SELECT 
 strftime('%Y-%m', InvoiceDate)  AS month, 
--- strftime stands for "string format time", and the parameter '%Y-%m' formate the output as year and month together
+-- strftime stands for "string format time", and the parameter '%Y-%m' formats the output as year and month together
 ROUND(SUM(Total), 2) AS revenue
 -- the first column will be the year &  month, the second column  will be the total sales per month 
 FROM Invoice
 GROUP BY month
 ORDER BY month; 
 -- Through this, I was able to sort data chronologically, ordering and grouping the data.
-
+-- to expand on this, from a data analysis standpoint, monthly revenue can be noise, subjected to all sorts of deviations 
+-- To see macro trends, I can  add a 3-month moving average
+SELECT
+month, 
+revenue, 
+ROUND( 
+	AVG(revenue) OVER (
+		ORDER BY month  --sorting the data in order of month
+		ROWS BETWEEN 2 PRECEDING AND CURRENT ROW --here it means the two rows before this, and the current row (so this month and the two months before
+		)
+		, 2) AS moving_avg_3m
+FROM  ( -- here, there is a subquery inside the FROM clause, so whatever is inside the bracket gets calculated first
+	SELECT 
+		strftime('%Y-%m', InvoiceDate) AS month,
+        ROUND(SUM(Total), 2)           AS revenue
+		FROM Invoice
+		GROUP BY month
+		-- The data from the Invoice table first needs to be grouped, and the monthly average needs to be calculated before the 3 month moving average can be found
+)
+ORDER BY month 
 
 
