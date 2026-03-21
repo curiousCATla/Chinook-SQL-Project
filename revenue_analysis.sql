@@ -10,4 +10,16 @@ ORDER BY Revenue DESC  --  order the data by the revenue in descending order
 LIMIT 10; -- limit to show only the first 10 data points 
 
 
+--"Is our revenue growing, shrinking, or seasonal over time?
+SELECT 
+strftime('%Y-%m', InvoiceDate)  AS month, 
+-- strftime stands for "string format time", and the parameter '%Y-%m' formate the output as year and month together
+ROUND(SUM(Total), 2) AS revenue
+-- the first column will be the year &  month, the second column  will be the total sales per month 
+FROM Invoice
+GROUP BY month
+ORDER BY month; 
+-- Through this, I was able to sort data chronologically, ordering and grouping the data.
+
+
 
