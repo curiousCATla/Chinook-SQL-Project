@@ -1,4 +1,4 @@
--- Which countries generate the most revenue?
+-- Q: "Which countries generate the most revenue?"
 SELECT BillingCountry, 
 ROUND(SUM(Total),2) AS Revenue ,  
 -- in the result, let the first column be the billing country and the second column be the total revenue from the country
@@ -10,7 +10,7 @@ ORDER BY Revenue DESC  --  order the data by the revenue in descending order
 LIMIT 10; -- limit to show only the first 10 data points 
 
 
---"Is our revenue growing, shrinking, or seasonal over time?
+--Q: "Is our revenue growing, shrinking, or seasonal over time?"
 SELECT 
 strftime('%Y-%m', InvoiceDate)  AS month, 
 -- strftime stands for "string format time", and the parameter '%Y-%m' formats the output as year and month together
@@ -41,4 +41,26 @@ FROM  ( -- here, there is a subquery inside the FROM clause, so whatever is insi
 )
 ORDER BY month 
 
+-- Q: "Who are our most valuable customers, and where are they from?"
+-- to do this, I will have to find the customer id with the highest total spending, and find the information of the customer in the customer table 
+SELECT 
+	RANK() OVER (ORDER BY total_spending DESC) AS rank,
+	-- in order to rank each customer in terms of total spending, the total spending first needs to be found
+	name, 
+	Country,
+	total_spending
+FROM(
+	SELECT 
+	c.FirstName || ' ' || c.LastName AS name,
+	-- two variables can be joined together using the '||} notation, while ' ' simply addes a space between the two 
+	c.Country,
+	ROUND(SUM(i.Total), 2) AS total_spending
+	FROM Customer c
+	JOIN Invoice i on c.CustomerId = i.CustomerId
+	-- where the 
+	GROUP BY c.CustomerId 
+)
+-- grouping by Customer ID to pervent duplicating names
+ORDER BY rank
+LIMIT 10; 
 
