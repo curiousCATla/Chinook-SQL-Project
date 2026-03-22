@@ -64,3 +64,15 @@ FROM(
 ORDER BY rank
 LIMIT 10; 
 
+-- Q: "Which countries have customers who spend the most per purchase?"
+-- To answer this question meaningfully, we have to exclude the outliers to know more about a country's spending capacity
+-- Therefore, a lower limit for the number of customers per country needs to be applied in order to ensure the analysis is meaningful
+SELECT 
+	BillingCountry,
+	COUNT(*) AS num_orders,
+	ROUND(AVG(Total), 2) AS avg_order_value
+FROM Invoice
+GROUP BY BillingCountry
+HAVING COUNT(*) >= 5
+-- the having argument filter countries with a low number of customers, each data point having 5 or more counts
+ORDER BY avg_order_value DESC;
