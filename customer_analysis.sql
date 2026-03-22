@@ -1,5 +1,5 @@
 -- Q: "Who are our most valuable customers, and where are they from?"
--- to do this, I will have to find the customer id with the highest total spending, and find the information of the customer in the customer table 
+-- to do this, I will have to find the customer ID with the highest total spending, and find the information of the customer in the customer table 
 SELECT 
 	RANK() OVER (ORDER BY total_spending DESC) AS rank,
 	-- in order to rank each customer in terms of total spending, the total spending first needs to be found
@@ -9,7 +9,7 @@ SELECT
 FROM(
 	SELECT 
 	c.FirstName || ' ' || c.LastName AS name,
-	-- two variables can be joined together using the '||} notation, while ' ' simply addes a space between the two 
+	-- two variables can be joined together using the '||} notation, while ' ' simply adds a space between the two 
 	c.Country,
 	ROUND(SUM(i.Total), 2) AS total_spending
 	FROM Customer c
@@ -17,7 +17,7 @@ FROM(
 	-- where the 
 	GROUP BY c.CustomerId 
 )
--- grouping by Customer ID to pervent duplicating names
+-- grouping by Customer ID to prevent duplicating names
 ORDER BY rank
 LIMIT 10; 
 
