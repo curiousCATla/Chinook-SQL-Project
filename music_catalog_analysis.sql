@@ -16,3 +16,17 @@ JOIN Genre g ON t.GenreID = g.GenreId
 -- This is done because the genre table contains information on the genre name and ID, but not the sales, and vice versa
 GROUP BY g.GenreID
 ORDER BY revenue DESC;
+
+-- Q: "Top 10 best-selling artists."
+SELECT
+	ar.Name AS artist,
+	COUNT(il.InvoiceLineId) AS tracks_sold,
+	ROUND(SUM(il.UnitPrice * il.Quantity), 2) AS revenue
+FROM
+InvoiceLine il
+JOIN Track t ON il.TrackId = t.TrackId
+JOIN Album al ON t.AlbumId = al.AlbumId
+JOIN Artist ar ON al.ArtistId = ar.ArtistId
+GROUP BY ar.ArtistId
+ORDER BY tracks_sold DESC
+LIMIT 10;
