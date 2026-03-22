@@ -5,7 +5,9 @@ SELECT
 	ROUND(SUM(il.UnitPrice*il.Quantity), 2) AS revenue ,
 	ROUND( 
 		SUM(il.UnitPrice*il.Quantity) / 
-		SUM(SUM(il.UnitPrice*il.Quantity)) OVER() * 100 , 1) AS percent_of_revenue
+		SUM(SUM(il.UnitPrice*il.Quantity)) OVER() * 100 , 1) 
+		AS percent_of_revenue
+		--sum over all the genres is the SUM(...)OVER()
 FROM InvoiceLine il
 JOIN Track t ON il.TrackId = t.TrackId
 JOIN Genre g ON t.GenreID = g.GenreId
