@@ -43,3 +43,26 @@ GROUP BY month
 ORDER BY month; 
 
 
+SELECT
+    customer_name,
+    country,
+    total_spent,
+    country_rank
+FROM (
+    SELECT
+        c.FirstName || ' ' || c.LastName         AS customer_name,
+        i.BillingCountry                          AS country,
+        ROUND(SUM(i.Total), 2)                    AS total_spent,
+        RANK() OVER (
+		--The RANK() assigns a position number to each data point; if two are tied, it will skip the next rank. Here, it is ranking OVER() a custom ORDER
+		-- the customers are partitioned by countries, and is ordered in terms of total spending 
+            PARTITION BY i.BillingCountry
+            ORDER BY SUM(i.Total) DESC
+        )                                         AS country_rank
+    FROM Customer c
+    JOIN Invoice i ON c.CustomerId = i.CustomerId
+    GROUP BY c.CustomerId
+) AS ranked_customers
+WHERE country_rank <= 3
+ORDER BY country, country_rank;
+
