@@ -20,7 +20,26 @@ SELECT
 InvoiceDate,
 Total,
 ROUND (SUM(Total) OVER(ORDER BY InvoiceDate), 2)  AS running_total
--- The line above is the backbone to this question. Putting "ORDER BY" inside the OVER() tells the window function to sum progressively
+-- The line above is the backbone of this question. Putting "ORDER BY" inside the OVER() tells the window function to sum progressively
 -- sum all the `Total` values from the very first row up to and including the current row, in date order
 FROM Invoice
 GROUP BY InvoiceDate;
+
+-- Taking this to the next level, the invoice can be grouped by month, which reveals the monthly progression 
+SELECT
+	month, 
+	monthly_revenue,
+	ROUND(
+	SUM(monthly_revenue) OVER ( ORDER BY month), 2) AS running_total
+-- here, the same progressive summation is performed
+FROM(
+SELECT
+	strftime('%Y-%m', InvoiceDate) AS month,
+	ROUND(SUM(Total),2) AS monthly_revenue 
+FROM Invoice
+GROUP BY month
+--first, the data is grouped by 'month' 
+) AS monthly
+ORDER BY month; 
+
+
