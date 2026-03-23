@@ -55,7 +55,7 @@ FROM (
         ROUND(SUM(i.Total), 2)                    AS total_spent,
         RANK() OVER (
 		--The RANK() assigns a position number to each data point; if two are tied, it will skip the next rank. Here, it is ranking OVER() a custom ORDER
-		-- the customers are partitioned by countries, and is ordered in terms of total spending 
+		-- the customers are partitioned by countries, and are ordered in terms of total spending 
             PARTITION BY i.BillingCountry
             ORDER BY SUM(i.Total) DESC
         )                                         AS country_rank
@@ -65,4 +65,29 @@ FROM (
 ) AS ranked_customers
 WHERE country_rank <= 3
 ORDER BY country, country_rank;
+
+-- Q: "Is revenue growing or shrinking compared to the previous month, and by how much?"
+WITH monthly AS (
+	SELECT
+	strftime('%Y-%m', InvoiceDate) as month,
+	ROUND(SUM(Total), 2 ) AS revenue
+	FROM Invoice
+	GROUP BY month
+)
+SELECT
+month, 
+revenue,
+ROUND( 
+	(revenue - LAG(revenue) OVER (ORDER BY month) ) / 
+	LAG(revenue) OVER (ORDER BY month)*100, 2) AS percent_change, 
+	--LAG(...) takes a column name and returns that column's value from the previous row, while LAG(..., 3) returns values from three rows back
+CASE
+	WHEN revenue > LAG(revenue) OVER (ORDER BY month) THEN 'growth'
+	WHEN revenue < LAG(revenue) OVER (ORDER BY month) THEN 'decline'
+	WHEN revenue = LAG(revenue) OVER (ORDER BY month) THEN 'flat'
+	ELSE 'N/A'
+END AS trend
+-- the CASE WHEN syntax is  SQL's version of an if/else statement 
+FROM monthly
+ORDER BY month; 
 
