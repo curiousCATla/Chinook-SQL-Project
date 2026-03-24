@@ -1,9 +1,18 @@
 # Chinook-SQL-Project
 This project analyses the Chinook database, which models a digital music store selling tracks across different countries. Using SQL, I explored revenue trends, customer behaviour, and catalog performance to reveal actionable business insights.
 
-Key insights: 
-- The USA generates 22% of the total revenue, while being one of many markets, driven by a high volume of smaller purchases rather than large individual orders
-- Chile, on average, has the highest average order value despite being one of the smallest markets, while the high spending customer is Helena Holý from the Czech Republic
-- Rock accounts for 28% of all tracks sold, with Iron Maiden having the most sales out of all artists
-- In Q4 of 2024, revenue dipped 20%, which may warrant further investigation into the catalog or seasonal changes during that period
+Key Questions & Findings:
+Sales / Revenue Analysis
+- "Which countries generate the most revenue?" -> The USA generates 22% of the total revenue, while being one of many markets, driven by a high volume of smaller purchases rather than large individual orders
+- "Is our revenue growing, shrinking, or static over time?" -> Over time, the revenue has been growing, but In Q4 of 2024, revenue dipped 20%, which may warrant further investigation into the catalog or seasonal changes during that period. Additionally, in the most recent month of December 2025, the revenue saw a sudden decrease, which may also prompt further investigation
+
+Artist / Track / Album Popularity: 
+- "Which music genres drive the most sales and revenue? " -> Rock accounts for 36% of total revenue, selling a total of 835 tracks
+- "Who are the Top 10 artists?" ->  Iron Maiden has the most sales out of all artists, with a total of 140 tracks sold. Followed by: U2, Metallica, etc...
+
+Customer Behavior
+- "Who are our most valuable customers, and where are they from?" -> The high spending customer is Helena Holý from the Czech Republic
+- "Which countries have customers who spend the most per purchase?" -> Chile, on average, has the highest average order value despite being one of the smallest markets with a single customer. When only looking at countries with 5 or more customers, the USA has the highest average order value
+- "How many customers made more than one purchase?" -> Almost every customer has made at least 7 purchases, and a single customer with 6 purchases.
+
 
