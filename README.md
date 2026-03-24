@@ -16,6 +16,7 @@ The Chinook database models a digital music store with the following key tables:
 | 'GROUP BY' / 'PARTITION BY"| Aggregating revenue and sales by country, genre, and artist |
 | 'ORDER BY' | Ordering revenue by chronology and amount in ascending and descending order |
 | 'JOIN on' | Linking customers, invoices, tracks, genres, and artists across tables |
+| 'OVER' |  Used with window functions to perform calculations, such as average, partition, and summation |
 | 'strftime" | Coverting string-form inputs into dates to determine chronology |
 | Subqueries / CTEs | Structuring multi-step logic (e.g., calculating totals before ranking) |
 
