@@ -69,9 +69,16 @@ LIMIT 10;
 -- Therefore, a lower limit for the number of customers per country needs to be applied in order to ensure the analysis is meaningful
 SELECT 
 	BillingCountry,
-	COUNT(*) AS num_orders,
-	ROUND(AVG(Total), 2) AS avg_order_value
+	COUNT(*) AS num_customers,
+	ROUND(SUM(customer_total)/SUM(customer_num_order),2) AS avg_order_value
+FROM (
+SELECT 
+BillingCountry,
+COUNT(*) AS customer_num_order,
+ROUND (SUM(Total),2) AS customer_total
 FROM Invoice
+GROUP BY CustomerId
+)
 GROUP BY BillingCountry
 HAVING COUNT(*) >= 5
 -- the having argument filter countries with a low number of customers, each data point having 5 or more counts
