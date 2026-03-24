@@ -1,6 +1,13 @@
 # Chinook-SQL-Project
 This project analyses the Chinook database, which models a digital music store selling tracks across different countries. Using SQL, I explored revenue trends, customer behaviour, and catalog performance to reveal actionable business insights.
 
+###The Chinook database models a digital music store with the following key tables:
+- `Customer` — customer demographics and location
+- `Invoice` / `InvoiceLine` — purchase transactions and line items
+- `Track` / `Album` / `Artist` — music catalog
+- `Genre` — genre classifications
+- `Employee` — support rep assignments
+
 Key Questions & Findings:
 Sales / Revenue Analysis
 - "Which countries generate the most revenue?" -> The USA generates 22% of the total revenue, while being one of many markets, driven by a high volume of smaller purchases rather than large individual orders
@@ -14,5 +21,6 @@ Customer Behavior
 - "Who are our most valuable customers, and where are they from?" -> The high spending customer is Helena Holý from the Czech Republic
 - "Which countries have customers who spend the most per purchase?" -> Chile, on average, has the highest average order value despite being one of the smallest markets with a single customer. When only looking at countries with 5 or more customers, the USA has the highest average order value
 - "How many customers made more than one purchase?" -> Almost every customer has made at least 7 purchases, and a single customer with 6 purchases.
+
 
 
