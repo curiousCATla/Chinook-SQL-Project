@@ -1,14 +1,16 @@
 # Chinook-SQL-Project
+## Overview
 This project analyses the Chinook database, which models a digital music store selling tracks across different countries. Using SQL, I explored revenue trends, customer behaviour, and catalog performance to reveal actionable business insights.
 
-## The Chinook database models a digital music store with the following key tables:
+## Database Schema
+The Chinook database models a digital music store with the following key tables:
 - `Customer` — customer demographics and location
 - `Invoice` / `InvoiceLine` — purchase transactions and line items
 - `Track` / `Album` / `Artist` — music catalog
 - `Genre` — genre classifications
 - `Employee` — support rep assignments
 
-Key Questions & Findings:
+## Key Questions & Findings
 Sales / Revenue Analysis
 - "Which countries generate the most revenue?" -> The USA generates 22% of the total revenue, while being one of many markets, driven by a high volume of smaller purchases rather than large individual orders
 - "Is our revenue growing, shrinking, or static over time?" -> Over time, the revenue has been growing, but In Q4 of 2024, revenue dipped 20%, which may warrant further investigation into the catalog or seasonal changes during that period. Additionally, in the most recent month of December 2025, the revenue saw a sudden decrease, which may also prompt further investigation
