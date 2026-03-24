@@ -10,7 +10,7 @@ ORDER BY Revenue DESC  --  order the data by the revenue in descending order
 LIMIT 10; -- limit to show only the first 10 data points 
 
 
---Q: "Is our revenue growing, shrinking, or seasonal over time?"
+--Q: "Is our revenue growing, shrinking, or static over time?"
 SELECT 
 strftime('%Y-%m', InvoiceDate)  AS month, 
 -- strftime stands for "string format time", and the parameter '%Y-%m' formats the output as year and month together
