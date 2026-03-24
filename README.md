@@ -1,7 +1,7 @@
 # Chinook-SQL-Project
 This project analyses the Chinook database, which models a digital music store selling tracks across different countries. Using SQL, I explored revenue trends, customer behaviour, and catalog performance to reveal actionable business insights.
 
-###The Chinook database models a digital music store with the following key tables:
+## The Chinook database models a digital music store with the following key tables:
 - `Customer` — customer demographics and location
 - `Invoice` / `InvoiceLine` — purchase transactions and line items
 - `Track` / `Album` / `Artist` — music catalog
