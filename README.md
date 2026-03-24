@@ -10,6 +10,12 @@ The Chinook database models a digital music store with the following key tables:
 - `Genre` — genre classifications
 - `Employee` — support rep assignments
 
+## SQL Skills & Techniques Demonstrated
+| Technique | Applied To | 
+|---|---|
+| 'GROUP BY' | Aggregating revenue and sales by country, genre, and artist |
+| 'ORDER BY' | Ordering revenue by chronology and amount in ascending and descending order | 
+
 ## Key Questions & Findings
 Sales / Revenue Analysis
 - "Which countries generate the most revenue?" -> The USA generates 22% of the total revenue, while being one of many markets, driven by a high volume of smaller purchases rather than large individual orders
