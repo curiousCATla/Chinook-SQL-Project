@@ -42,7 +42,7 @@ GROUP BY month
 ) AS monthly
 ORDER BY month; 
 
-
+--Q: "Who is the top-spending customer in each country — and how do the top 3 rank within their own market?"
 SELECT
     customer_name,
     country,
