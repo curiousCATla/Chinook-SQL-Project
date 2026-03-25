@@ -73,6 +73,7 @@ WITH monthly AS (
 	ROUND(SUM(Total), 2 ) AS revenue
 	FROM Invoice
 	GROUP BY month
+-- Using CTE to make the SQL more readable, here the nested table allows the logic to flow more smoothly when reading the SQL from top to bottom
 )
 SELECT
 month, 
