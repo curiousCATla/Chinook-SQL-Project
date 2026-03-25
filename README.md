@@ -34,5 +34,8 @@ Customer Behavior
 - "Which countries have customers who spend the most per purchase?" -> Chile, on average, has the highest average order value despite being one of the smallest markets with a single customer. When only looking at countries with 5 or more customers, the USA has the highest average order value
 - "How many customers made more than one purchase?" -> Almost every customer has made at least 7 purchases, and a single customer with 6 purchases.
 
+## What I Learned
+This was my first SQL project and my introduction to databases and data analysis using SQL. This project taught me the basics of databases, using DB Browser to explore data structure and execute SQL to produce tables with analytical value. 
+
 
 
