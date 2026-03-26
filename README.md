@@ -13,8 +13,7 @@ The Chinook database models a digital music store with the following key tables:
 ## SQL Skills & Techniques Demonstrated
 | Technique | Applied To | 
 |---|---|
-
-| 'JOIN' ('INNER', implicit) | Linking up to 4 tables, 'InovoiceLine', 'Track', 'Album', and 'Genre', to connect sales data with catalog information | 
+| 'JOIN' ('INNER', implicit) | Linking up to 4 tables, 'InovoiceLine', 'Track', 'Album', and 'Genre', to connect sales data with catalog information |
 | 'GROUP BY' | Aggregating revenue and track sales by country, genre, artist, customer, and month |
 | 'HAVING' | Filtering grouped results, e.g., excluding countries with fewer than 5 customers |
 | 'ORDER BY' | Ordering results chronologically and by revenue in ascending and descending order |
