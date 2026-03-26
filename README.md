@@ -35,7 +35,8 @@ Customer Behavior
 - "How many customers made more than one purchase?" -> Almost every customer has made at least 7 purchases, and a single customer with 6 purchases.
 
 ## What I Learned
-This was my first SQL project and my introduction to databases and data analysis using SQL. This project taught me the basics of databases, using DB Browser to explore data structure and execute SQL to produce tables with analytical value. One of my most important takeaways was the power of common table expressions (CTEs) to ensure the reliability of complex logics in SQL.  
+This was my first SQL project and my introduction to databases and data analysis using SQL.
+Working with the Chinook database taught me the fundamentals of relational data, how tables connect through keys, and often multiple tables are necessary to answer basic business questions. A key takeaway was learning to break complex logic into readable steps using CTEs, rather than stacking nested subqueries. I also employed window functions, using 'RANK()' & 'PARTITION()' to compare customers within their own country, 'LAG()' to calculate monthly revenue change, and a rolling 3-month average to reduce noise in monthly revenue data. Beyond SQL syntax, I equally learned how to ask better questions about data, recognising, for instance, that a country's average order value is misleading without a minimum customer threshold. I look forward to building on this foundation and would like to visualize these findings next using Python. 
 
 
 
