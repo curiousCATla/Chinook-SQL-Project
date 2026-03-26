@@ -11,19 +11,18 @@ The Chinook database models a digital music store with the following key tables:
 - `Employee` — support rep assignments
 
 ## SQL Skills & Techniques Demonstrated
-| Technique | Applied To | 
+| Technique | Applied To |
 |---|---|
-| 'JOIN' ('INNER', implicit) | Linking up to 4 tables, 'InovoiceLine', 'Track', 'Album', and 'Genre', to connect sales data with catalog information |
-
-| 'GROUP BY' | Aggregating revenue and track sales by country, genre, artist, customer, and month |
-| 'HAVING' | Filtering grouped results, e.g., excluding countries with fewer than 5 customers |
-| 'ORDER BY' | Ordering results chronologically and by revenue in ascending and descending order |
-| 'RANK()'/'PARTITION BY'| Ranking customers by total spending within each country, using window functions to preserve row-level detail (essentially preserving information) |
-| 'LAG()' | Comparing each month's revenue to the previous to calculate percent change and classify trends as: growth, decline, or flat |
-| 'SUM() OVER()'/'AVG() OVER()' | Computing cumulative running totals and a 3-month rolling average to identify revenue trends over time |
-| 'CASE WHEN' | Classifying monthly revenue trends as 'growth', 'decline', or 'flat' based on comparing to the prior month| 
-| 'strftime" | Formatting invoice dates into 'YYYY-MM' strings to enable monthly grouping and chronological sorting | |
-| Subqueries / CTEs | Breaking multi-step logic into readable layers; e.g. calculating monthly totals in a CTE before computing month-over-month changes |
+| `JOIN` (`INNER`, implicit) | Linking up to 4 tables — `InvoiceLine`, `Track`, `Album`, and `Genre` — to connect sales data with catalog information |
+| `GROUP BY` | Aggregating revenue and track sales by country, genre, artist, customer, and month |
+| `HAVING` | Filtering grouped results, e.g. excluding countries with fewer than 5 customers |
+| `ORDER BY` | Ordering results chronologically and by revenue in ascending and descending order |
+| `RANK()` / `PARTITION BY` | Ranking customers by total spending within each country, using window functions to preserve row-level detail |
+| `LAG()` | Comparing each month's revenue to the previous to calculate percent change and classify trends as growth, decline, or flat |
+| `SUM() OVER()` / `AVG() OVER()` | Computing cumulative running totals and a 3-month rolling average to identify revenue trends over time |
+| `CASE WHEN` | Classifying monthly revenue trends as growth, decline, or flat based on comparison to the prior month |
+| `strftime` | Formatting invoice dates into `YYYY-MM` strings to enable monthly grouping and chronological sorting |
+| Subqueries / CTEs | Breaking multi-step logic into readable layers — e.g. calculating monthly totals in a CTE before computing month-over-month changes |
 
 ## Key Questions & Findings
 Sales / Revenue Analysis
