@@ -35,7 +35,7 @@ Customer Behavior
 - "How many customers made more than one purchase?" -> Almost every customer has made at least 7 purchases, and a single customer with 6 purchases.
 
 ## What I Learned
-This was my first SQL project and my introduction to databases and data analysis using SQL. This project taught me the basics of databases, using DB Browser to explore data structure and execute SQL to produce tables with analytical value. 
+This was my first SQL project and my introduction to databases and data analysis using SQL. This project taught me the basics of databases, using DB Browser to explore data structure and execute SQL to produce tables with analytical value. One of my most important takeaways was the power of common table expressions (CTEs) to ensure the reliability of complex logics in SQL.  
 
 
 
