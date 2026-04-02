@@ -1,341 +1,46 @@
-# NBA Analytics Project
-
+# Chinook-SQL-Project
 ## Overview
-
-This project explores 74 years of NBA history (1950–2023) using a SQLite database built from four Kaggle datasets. Using SQL embedded in Python, I queried the database to investigate league-wide scoring trends, individual player performance, rookie history, and year-over-year progression. Results are visualized using matplotlib and seaborn.
-
-**Dataset Source:** [NBA Players and Team Data — Kaggle](https://www.kaggle.com/datasets/loganlauton/nba-players-and-team-data?resource=download&select=NBA+Player+Stats%281950+-+2022%29.csv)  
-**Data sourced from:** Basketball Reference (player stats) · Hoops Hype (salaries & payroll)
-
----
-
-## Technical Stack
-
-### SQL Techniques
-
-All queries are written in SQLite and executed via `pd.read_sql_query()`. Key techniques used:
-
-| Technique | Where Used |
-|-----------|------------|
-| **Common Table Expressions (CTEs)** | Multi-step queries in analyses 3–9 — chains `clean_stats → player_avg → ranked output` |
-| **Window Functions** — `RANK() OVER (PARTITION BY ...)` | Rookie scoring leaders — ranks rookies within each season |
-| **Window Functions** — `PERCENT_RANK() OVER (ORDER BY ...)` | Player comparison tool  — computes league-wide percentile rank for each stat |
-| **`CASE WHEN`** | Scoring tier classification — buckets PPG into 5 tiers |
-| **`NOT EXISTS` subquery** | TOT deduplication — removes duplicate rows for traded players |
-| **`UNION ALL`** | TOT deduplication — reconstructs a clean, deduplicated dataset |
-| **Multi-table `JOIN`** | Year-over-year improvement — joins 2021 and 2022 seasons on player name |
-| **`HAVING`** | Consistent scorers — filters players with 5+ qualifying seasons |
-| **Computed columns** | Per-game stats calculated inline: `ROUND(PTS * 1.0 / G, 1) AS PPG` |
-
-**TOT Deduplication Pattern** — used in 6 of 8 analyses to handle players traded mid-season (who appear once per team plus a combined `TOT` row):
-
-```sql
-WITH clean_stats AS (
-    SELECT * FROM player_stats WHERE Tm = 'TOT'        -- keep the combined row
-    UNION ALL
-    SELECT * FROM player_stats                          -- keep single-team players
-    WHERE NOT EXISTS (
-        SELECT 1 FROM player_stats p2
-        WHERE p2.Player = player_stats.Player
-          AND p2.Season = player_stats.Season
-          AND p2.Tm = 'TOT'                             -- only if no TOT row exists
-    )
-)
-```
-
----
-
-### Python Techniques
-
-| Technique | Library | Where Used |
-|-----------|---------|------------|
-| SQL → DataFrame bridge | `pandas.read_sql_query()` | All analysis scripts |
-| Label overlap prevention | `adjustText.adjust_text()` | Scatter plots with crowded player name labels |
-| Unicode normalization | `unicodedata.normalize('NFKD', ...)` | Player name input — handles accented names like "Dončić" → "doncic" |
-| Fuzzy string matching | `difflib.get_close_matches()` | Suggests closest player name on typo |
-| Polar/radar chart | `matplotlib` with `subplot_kw=dict(polar=True)` | Multi-player percentile comparison |
-| Multi-panel subplots | `matplotlib.pyplot.subplots(2, 3)` | Career progression tool |
-| Seaborn themes | `seaborn` | Consistent styling across all charts |
-
----
+This project analyses the Chinook database, which models a digital music store selling tracks across different countries. Using SQL, I explored revenue trends, customer behaviour, and catalog performance to reveal actionable business insights.
 
 ## Database Schema
-
-The SQLite database (`nba.db`, ~137 MB) contains four tables:
-
-| Table | Description | Rows (approx.) |
-|-------|-------------|----------------|
-| `player_stats` | Seasonal aggregates per player (1950–2023) | ~30,000 |
-| `player_boxscores` | Game-by-game stat lines per player | ~650,000 |
-| `salaries` | Individual player salaries with inflation adjustment | ~17,000 |
-| `payroll` | Team-level seasonal payroll | ~800 |
-
----
-
-## Project Structure
-
-```
-NBA_SQL/
-├── README.md
-├── load_data.py # Loads CSV files into nba.db via pandas + sqlite3
-├── queries.sql
-├── requirement.txt 
-└── visualization
-    ├── analysis1.py
-    ├── analysis2.py
-    ├── analysis4.py
-    ├── analysis5.py
-    ├── analysis6.py
-    ├── analysis7.py # Q7: Interactive multi-player radar chart (2022 percentiles)
-    ├── analysis9.py
-    ├── analysis3.py
-    └── player_prog.py # Interactive career progression tool (6-panel chart)
-```
-
----
-
-## Setup & Installation
-
-```bash
-# Install dependencies
-pip install pandas matplotlib seaborn adjustText
-
-# Build the database from CSV files
-python load_data.py
-
-# Run any analysis (example)
-python visualization/analysis3.py
-```
-
----
-
-## Analyses
-
-### Q1 · Top 10 Single-Season Scorers of All Time
-
-Query orders all seasons by total points per game and returns the top 10.
-
-```sql
-SELECT Player, Season, Tm, PTS
-FROM player_stats
-ORDER BY PTS DESC
-LIMIT 10;
-```
-
-![Top 10 Single-Season Scorers](images/top_10_scorers.png)
-
----
-
-### Q2 · Players Averaging 25+ PPG and 7+ APG in a Single Season
-
-Computed columns calculate per-game averages inline. `adjustText` prevents label overlap on the scatter plot.
-
-```sql
-SELECT Player, Season, Tm,
-    ROUND(PTS * 1.0 / G, 1) AS PPG,
-    ROUND(AST * 1.0 / G, 1) AS APG
-FROM player_stats
-WHERE PPG >= 25 AND APG >= 7 AND G >= 41
-ORDER BY PPG DESC;
-```
-
-![PPG vs APG Scatter](images/ppg_vs_apg_scatter.png)
-
-**Finding:** Only a handful of players in NBA history have simultaneously dominated in both scoring and playmaking — Oscar Robertson, Magic Johnson, and LeBron James appear most frequently.
-
----
-
-### Q3 · League-Wide Average PPG Trend (1950–2023)
-
-A two-step CTE first deduplicates traded players, then averages PPG per season across the full league.
-
-```sql
-WITH clean_stats AS ( ... ),   -- deduplicate TOT rows
-     player_avg AS (
-         SELECT Season, Player, ROUND(PTS / G, 2) AS PPG
-         FROM clean_stats WHERE G >= 1
-     )
-SELECT Season, AVG(PPG) AS avg_PPG, COUNT(*) AS player_count
-FROM player_avg
-GROUP BY Season ORDER BY Season;
-```
-
-![Average PPG by Season](images/avg_ppg_by_season.png)
-
-**Finding:** League scoring peaked in the early 1960s, dipped significantly through the defensive era of the 1990s–2000s, and has risen sharply again in the modern three-point era.
-
----
-
-### Q4 · Players with 5+ Seasons Averaging 20+ PPG
-
-`HAVING` filters groups after aggregation — only players whose count of qualifying seasons meets the threshold survive.
-
-```sql
-SELECT Player,
-    COUNT(Season)      AS seasons_above_20,
-    ROUND(AVG(PPG), 1) AS avg_ppg_in_those_seasons
-FROM player_avg
-WHERE PPG >= 20
-GROUP BY Player
-HAVING COUNT(Season) >= 5
-ORDER BY seasons_above_20 DESC;
-```
-
-![Seasons Above 20 PPG](images/seasons_above_20.png)
-
----
-
-### Q5 · Scoring Tier Distribution in 2022
-
-`CASE WHEN` classifies each player into one of five scoring tiers based on their per-game average.
-
-```sql
-CASE
-    WHEN PPG >= 25 THEN 'Elite (25+)'
-    WHEN PPG >= 20 THEN 'Star (20–24)'
-    WHEN PPG >= 15 THEN 'Starter (15–19)'
-    WHEN PPG >= 10 THEN 'Role Player (10–14)'
-    ELSE                'Bench (< 10)'
-END AS scoring_tier
-```
-
-![Scoring Tiers 2022](images/scoring_tiers_2022.png)
-
----
-
-### Q6 · Highest-Scoring Rookie Each Year Since 1953
-
-A four-step CTE chain: deduplicate → identify each player's first season → join back for rookie stats → `RANK()` within each season to find the top scorer.
-
-```sql
-WITH clean_stats AS ( ... ),
-     rookie_year   AS (SELECT Player, MIN(Season) AS rookie_season FROM player_stats GROUP BY Player),
-     rookie_stats  AS (SELECT cs.Player, cs.Season, ROUND(cs.PTS / cs.G, 2) AS PPG
-                       FROM clean_stats cs JOIN rookie_year ry
-                       ON cs.Player = ry.Player AND cs.Season = ry.rookie_season
-                       WHERE cs.G >= 20),
-     ranked_rookies AS (
-         SELECT *, RANK() OVER (PARTITION BY Season ORDER BY PPG DESC) AS ppg_rank
-         FROM rookie_stats
-     )
-SELECT Player, Season, PPG FROM ranked_rookies WHERE ppg_rank = 1 AND Season >= 1953;
-```
-
-![Rookie PPG by Season](images/highest_rookie_ppg_by_season.png)
-
----
-
-### Q7 · Interactive Player Comparison — Percentile Radar Chart
-
-`PERCENT_RANK()` window functions compute each player's league-wide percentile rank across five stats simultaneously. The radar chart is drawn using matplotlib's polar projection.
-
-```sql
-SELECT Player,
-    ROUND(PERCENT_RANK() OVER (ORDER BY PPG) * 100, 1) AS pts_percentile,
-    ROUND(PERCENT_RANK() OVER (ORDER BY APG) * 100, 1) AS ast_percentile,
-    ROUND(PERCENT_RANK() OVER (ORDER BY RPG) * 100, 1) AS reb_percentile,
-    ROUND(PERCENT_RANK() OVER (ORDER BY SPG) * 100, 1) AS stl_percentile,
-    ROUND(PERCENT_RANK() OVER (ORDER BY BPG) * 100, 1) AS blk_percentile
-FROM league_2022;
-```
-
-**Interactive features:**
-- Comma-separated input accepts multiple player names
-- `unicodedata.normalize()` maps accented names (e.g. `Dončić`) to plain ASCII input
-- `difflib.get_close_matches()` suggests the closest match on typos with a yes/no/stop prompt to simplify user interaction
-![Player Comparison](images/2022_curry_vs_lebron.png)
-
----
-
-### Q8 · Who were the top 3 scorers on each team in the 2022 season?
-Three CTEs that isolate data from the 2022 season, find each team's total points, partition the player data based on teams, and assign rankings based on total points. 
-
-```sql
-  WITH clean_2022 AS (
-      -- Remove TOT rows; keep individual team rows only
-      SELECT Player, Tm, G, PTS                                                                                                                    
-      FROM player_stats
-      WHERE Season = 2022                                                                                                                          
-        AND G >= 1                                      
-        AND Tm != 'TOT'
-  ),                                                                                                                                               
-  team_totals AS (
-      -- Sum all player points per team to get a sortable team score                                                                               
-      SELECT Tm, SUM(PTS) AS team_total_pts                                                                                                        
-      FROM clean_2022
-      GROUP BY Tm                                                                                                                                  
-  ),                                                    
-  ranked_players AS (
-      -- Rank each player within their team by individual PTS
-      SELECT                                                                                                                                       
-          Player, Tm, G, PTS,
-          RANK() OVER (PARTITION BY Tm ORDER BY PTS DESC) AS team_ranking                                                                          
-      FROM clean_2022                                   
-  )                                                                                                                                                
-  SELECT                                                
-      r.Tm,
-      t.team_total_pts,
-      r.team_ranking,                                                                                                                              
-      r.Player,
-      r.PTS,                                                                                                                                       
-      r.G                                               
-  FROM ranked_players r
-  JOIN team_totals t ON r.Tm = t.Tm
-  WHERE r.team_ranking <= 3                                                                                                                        
-  ORDER BY t.team_total_pts DESC, r.team_ranking;
-
-```
----
-### Q9 · Most Improved Scorers from 2021 to 2022
-
-Three CTEs isolate each season's data, then a `JOIN` on player name links a player's 2021 and 2022 stats to compute the improvement delta.
-
-```sql
-WITH season_2021 AS (SELECT Player, ROUND(PTS * 1.0 / G, 1) AS PPG_2021 FROM clean_stats WHERE Season = 2021 AND G >= 20),
-     season_2022 AS (SELECT Player, Tm, ROUND(PTS * 1.0 / G, 1) AS PPG_2022 FROM clean_stats WHERE Season = 2022 AND G >= 20),
-     combined    AS (SELECT s22.Player, s21.PPG_2021, s22.PPG_2022,
-                            ROUND(s22.PPG_2022 - s21.PPG_2021, 1) AS improvement
-                     FROM season_2022 s22 JOIN season_2021 s21 ON s22.Player = s21.Player)
-SELECT * FROM combined ORDER BY improvement DESC LIMIT 10;
-```
-
----
-
-## Interactive Tool — Career Progression (`player_prog.py`)
-
-Visualizes any player's career arc across six dimensions in a single 2×3 grid.
-
-```bash
-python player_prog.py
-# Enter player name: michael jrdan
-# → 'michael jrdan' not found. Did you mean 'Michael Jordan'? (yes/no/stop): yes
-```
-
-- Pulls all career seasons via the `clean_stats` CTE
-- Per-game stats (PPG, APG, RPG, SPG, BPG) computed per season
-- 6th panel shows games played as a bar chart to contextualize injury seasons
-
----
-
-## Key Findings
-
-- **Wilt Chamberlain** holds the all-time single-season scoring record at **50.4 PPG** (1961–62), nearly 10 points ahead of anyone else in history.
-- Only **~4% of NBA players** in 2022 qualified as "Elite" scorers (25+ PPG); over half fell into the "Bench" tier.
-- League-wide scoring has returned to 1960s levels after a defensive valley spanning roughly 1994–2010.
-- The **modern three-point era** has produced some of the highest-scoring rookie classes since the 1960s.
-- Fewer than 15 players in the dataset have ever averaged 20+ PPG in 5 or more seasons.
-
----
-
-## Potential Extensions
-
-- **Salary efficiency** — JOIN `player_stats` with `salaries` to rank players by PPG per $1M
-- **Hot streak analysis** — Use the `player_boxscores` table to find the longest consecutive 20+ point games
-- **Team payroll vs. win rate** — Correlate team spending with win percentage across seasons
-- **Streamlit dashboard** — Deploy analyses as an interactive web app
+The Chinook database models a digital music store with the following key tables:
+- `Customer` — customer demographics and location
+- `Invoice` / `InvoiceLine` — purchase transactions and line items
+- `Track` / `Album` / `Artist` — music catalog
+- `Genre` — genre classifications
+- `Employee` — support rep assignments
+
+## SQL Skills & Techniques Demonstrated
+| Technique | Applied To |
+|---|---|
+| `JOIN` (`INNER`, implicit) | Linking up to 4 tables — `InvoiceLine`, `Track`, `Album`, and `Genre` — to connect sales data with catalog information |
+| `GROUP BY` | Aggregating revenue and track sales by country, genre, artist, customer, and month |
+| `HAVING` | Filtering grouped results, e.g. excluding countries with fewer than 5 customers |
+| `ORDER BY` | Ordering results chronologically and by revenue in ascending and descending order |
+| `RANK()` / `PARTITION BY` | Ranking customers by total spending within each country, using window functions to preserve row-level detail |
+| `LAG()` | Comparing each month's revenue to the previous to calculate percent change and classify trends as growth, decline, or flat |
+| `SUM() OVER()` / `AVG() OVER()` | Computing cumulative running totals and a 3-month rolling average to identify revenue trends over time |
+| `CASE WHEN` | Classifying monthly revenue trends as growth, decline, or flat based on comparison to the prior month |
+| `strftime` | Formatting invoice dates into `YYYY-MM` strings to enable monthly grouping and chronological sorting |
+| Subqueries / CTEs | Breaking multi-step logic into readable layers — e.g. calculating monthly totals in a CTE before computing month-over-month changes |
+
+## Key Questions & Findings
+Sales / Revenue Analysis
+- "Which countries generate the most revenue?" -> The USA generates 22% of the total revenue, while being one of many markets, driven by a high volume of smaller purchases rather than large individual orders
+- "Is our revenue growing, shrinking, or static over time?" -> Over time, the revenue has been growing, but In Q4 of 2024, revenue dipped 20%, which may warrant further investigation into the catalog or seasonal changes during that period. Additionally, in the most recent month of December 2025, the revenue saw a sudden decrease, which may also prompt further investigation
+
+Artist / Track / Album Popularity: 
+- "Which music genres drive the most sales and revenue? " -> Rock accounts for 36% of total revenue, selling a total of 835 tracks
+- "Who are the Top 10 artists?" ->  Iron Maiden has the most sales out of all artists, with a total of 140 tracks sold. Followed by: U2, Metallica, etc...
+
+Customer Behavior
+- "Who are our most valuable customers, and where are they from?" -> The high spending customer is Helena Holý from the Czech Republic
+- "Which countries have customers who spend the most per purchase?" -> Chile, on average, has the highest average order value despite being one of the smallest markets with a single customer. When only looking at countries with 5 or more customers, the USA has the highest average order value
+- "How many customers made more than one purchase?" -> Almost every customer has made at least 7 purchases, and a single customer with 6 purchases.
 
 ## What I Learned
+This was my first SQL project and my introduction to databases and data analysis using SQL.
+Working with the Chinook database taught me the fundamentals of relational data, how tables connect through keys, and often multiple tables are necessary to answer basic business questions. A key takeaway was learning to break complex logic into readable steps using CTEs, rather than stacking nested subqueries. I also employed window functions, using 'RANK()' & 'PARTITION()' to compare customers within their own country, 'LAG()' to calculate monthly revenue change, and a rolling 3-month average to reduce noise in monthly revenue data. Beyond SQL syntax, I equally learned how to ask better questions about data, recognising, for instance, that a country's average order value is misleading without a minimum customer threshold. I look forward to building on this foundation and would like to visualize these findings next using Python. 
 
-This is my second SQL project and my first time combining SQL with Python. Moving from a clean tutorial database to raw, real-world data meant confronting problems I had to solve independently — the most significant being that traded players appear multiple times per season. Recognizing that pattern and writing a `NOT EXISTS` deduplication CTE to resolve it was one of the more satisfying parts of the project, and it reinforced how important understanding your data's structure is before writing any analysis.
 
-Connecting SQL to Python via `pandas` made data visualization a natural next step. I learned to match the question being asked to the right chart format: bar charts for rankings, scatter plots for correlations and trends, pie charts for distributions. Building the interactive tools pushed me further — anticipating how a real user would interact with the input prompted me to research and implement Unicode normalization and fuzzy string matching, neither of which I had used before.
+
